@@ -99,3 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+#mystuff
+*shortlist.txt
+*json_MList.txt

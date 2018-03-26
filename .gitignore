@@ -103,3 +103,5 @@ ENV/
 #mystuff
 *shortlist.txt
 *json_MList.txt
+*software.py
+*tmp.txt

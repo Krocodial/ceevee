@@ -1,10 +1,25 @@
 import re, json, difflib, urllib.request, requests
 from application import application
 
-def closest(a, b):
-	products = a
-	name = b
-	return min(products, key=lambda v: len(set(name) ^ set(v)))
+"""
+This is supposedly a lot faster since it requires C compatibility. 
+import Levenshtein
+print(Levenshtein.ratio('hellosd', 'sdklf'))
+"""
+
+def closest(products, name):
+	highest = 0
+	value = ''
+	for product in products:
+		current = difflib.SequenceMatcher(None, name, product).ratio()
+		if current > highest:
+			value = product
+			highest = current
+			print(highest)
+			print(name + '\t' + value + '\n')
+	print('---------------------------------')
+	return value
+	#return min(products, key=lambda v: len(set(name) ^ set(v)))
 
 
 	
@@ -74,7 +89,12 @@ for line in sw_input:
 	if len(vendor_match) > 0:
 		optimized = optimize(software)
 		products = []
-		
+		"""
+		TODO
+		remove vendor name before comparing ratio
+		disregard low ratio results
+		convert '#' to %23
+		"""
 		for each in vendor_match:
 			url = 'http://cve.circl.lu/api/browse/' + each
 			result = requests.get(url, headers=headers)

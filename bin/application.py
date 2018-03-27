@@ -1,6 +1,7 @@
 class application:
 	def __init__(self, name, vendor):
 		self.name = name
+		self.vendors = []
 		self.vendors.append(vendor)
 		
 	def get_name(self):

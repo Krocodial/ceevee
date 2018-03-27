@@ -106,3 +106,5 @@ ENV/
 *software.py
 *tmp.txt
 *files/
+*loot.txt
+*test.py

@@ -1,17 +1,19 @@
 import re, json, difflib
-
+import urllib.request
 spaces = re.compile(' ')
 plus = re.compile('\+')
 version = re.compile(r'\s[\S]*[\d]+.', re.DOTALL)
 
-def closest(products, name):
+def closest(products, name, app_list):
 	highest = 0
 	value = ''
+	
 	for product in products:
 		current = difflib.SequenceMatcher(None, name, product).ratio()
 		if current > highest:
 			value = product
 			highest = current
+			
 	if highest < .7:
 		return ''
 	return value
@@ -23,8 +25,10 @@ def clean_string(string):
 	words = string.split()
 	if jre in words:
 		string = 'oracle jre'
+		print('jre')
 	if jdk in words:
 		string = 'oracle jdk'
+		print('jdk')
 
 	#MICROSOFT
 	if '.NET' in words and 'Update' not in words:
@@ -46,35 +50,32 @@ def clean_string(string):
 	
 def optimize(string):
 	#optimization rules to find closest match via API
-	optimized = plus.sub('%2b', string)
-	optimized = spaces.sub('_', optimized)
+	#optimized = plus.sub('%2b', string)
+	optimized = spaces.sub('_', string)
+	optimized = urllib.parse.quote_plus(optimized)
 	optimized = optimized.lower()
 	return optimized
 	
 
 def determine_product(application_list):
-
+	output = open('../loot.txt', 'w')
+	output.write('IDENTIFIED APPLICATION\n')
+	output.write('++++++++++++++++++++++\n')
 	for app in application_list:
 		products = []
+		vendors = []
 		for vendor in application_list[app]:
 			tmp = json.load(open('../files/' + vendor + '_productlist.txt'))
 			products = products + tmp
-		app = clean_string(app)
-		app = optimize(app)
-		name = closest(products, app)
+			vendors.append(vendor)
+		appready = clean_string(app)
+		appready = optimize(appready)
+		name = closest(products, appready, vendors)
 		if name == '':
 			continue
-		print(app + '\t' + name)
-	exit()
-	
-	
-	for vendor in vendors:
-		q = re.compile(r'(\b|^)' + vendor + r'\b', re.IGNORECASE)
-		for product in sw_products:
-			if q.search(product):
-				if vendor not in vendorlist:
-					vendorlist.append(vendor)
-
+		output.write(app + '\tApplication Identified as:\t' + name + '\n')
+		output.write('--------------------\n')
+	output.close()
 	
 	
 def get_version(application_list):

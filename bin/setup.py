@@ -115,5 +115,12 @@ def find_vendors(application_list):
 	
 	
 def clean():
-	os.remove('../files/*_productlist.txt')
+	pattern = re.compile('.productlist.txt')
+	for f in os.listdir('../files/'):
+		if re.search(pattern, f):
+			os.remove(os.path.join('../files/', f))
+	
+	
+	
+	
 	

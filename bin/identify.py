@@ -59,7 +59,7 @@ def optimize(string):
 
 def determine_product(application_list):
 	output = open('../loot.txt', 'w')
-	output.write('IDENTIFIED APPLICATION\n')
+	output.write('IDENTIFIED APPLICATIONS\n')
 	output.write('++++++++++++++++++++++\n')
 	for app in application_list:
 		products = []

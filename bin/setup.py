@@ -10,6 +10,13 @@ version = re.compile(r'\s[\S]*[\d]+.', re.DOTALL)
 addriver = re.compile('^XA650.', re.DOTALL)
 bracs = re.compile('[(].[)]', re.DOTALL)
 
+def parse_csv(name):
+	try:
+		input = csv.reader(open('../' + name))
+	except:
+		print('Error \nPlease ensure you are entering the name of a csv file, and that the file is in the ~/files directory')
+		exit()
+
 """
 Update our vendor list
 """
@@ -102,7 +109,8 @@ def find_vendors(application_list):
 				if product not in application_list:
 					application_list[product] = [vendor]
 				else:
-					application_list[product].append(vendor)
+					if vendor not in application_list[product]:
+						application_list[product].append(vendor)
 					
 				if vendor not in vendorlist:
 					vendorlist.append(vendor)

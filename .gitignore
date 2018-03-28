@@ -108,3 +108,5 @@ ENV/
 *files/
 *loot.txt
 *test.py
+*no_id.txt
+*versions.txt

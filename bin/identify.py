@@ -1,8 +1,13 @@
 import re, json, difflib
 import urllib.request
+
+#REGEX
 spaces = re.compile(' ')
 plus = re.compile('\+')
-version = re.compile(r'\s[\S]*[\d]+.', re.DOTALL)
+version = re.compile(r'\s[\S]*[\d]+.', re.DOTALL) #Quick and dirty
+vversion = re.compile('\S*\d\S*' + '|' + '\(.\)' + '|' + '\S*\d\S*', re.DOTALL); #Internal version numbers
+up = re.compile('.*'+'\s'+'update'+'\s'+'.*', re.IGNORECASE); #Is an update
+java = re.compile('.*java.*', re.IGNORECASE); #Java program?
 
 def closest(products, name, app_list):
 	highest = 0
@@ -13,12 +18,29 @@ def closest(products, name, app_list):
 		if current > highest:
 			value = product
 			highest = current
-			
-	if highest < .7:
+	"""
+	It should be noted that when string operations such as optimize and clean are performed, vendor names may be removed as garbage values. So expect that they may not be found. 
+	"""
+	
+	for vendor in app_list:
+		namelist = name.split('_')
+		if vendor in namelist:
+			namelist.remove(vendor)
+			mod_name = '_'.join(namelist)
+			for product in products:
+				current = difflib.SequenceMatcher(None, mod_name, product).ratio()
+				if current > highest:
+					value = product
+					highest = current
+				
+	
+	#Finished comparisons, return result if we are satisfied
+	if highest < .8:
 		return ''
 	return value
 	
 def clean_string(string):
+
 	#JAVA
 	jre = ['java', 'runtime', 'environment']
 	jdk = ['java', 'development', 'kit']
@@ -59,27 +81,45 @@ def optimize(string):
 
 def determine_product(application_list):
 	output = open('../loot.txt', 'w')
+	junk = open('../no_id.txt', 'w')
+	association = {}
 	output.write('IDENTIFIED APPLICATIONS\n')
 	output.write('++++++++++++++++++++++\n')
 	for app in application_list:
 		products = []
-		vendors = []
 		for vendor in application_list[app]:
 			tmp = json.load(open('../files/' + vendor + '_productlist.txt'))
 			products = products + tmp
-			vendors.append(vendor)
 		appready = clean_string(app)
 		appready = optimize(appready)
-		name = closest(products, appready, vendors)
+		name = closest(products, appready, application_list[app])
 		if name == '':
+			junk.write(app + '\n')
 			continue
+		association[app] = name
 		output.write(app + '\tApplication Identified as:\t' + name + '\n')
 		output.write('--------------------\n')
 	output.close()
+	junk.close()
+	return association
+	
+#Given a name, extract the possible version numbers.
+def determine_versions(associations):
+	versions = {}
+	for name, software in associations.items():
+		versionlist = vversion.findall(name)
+		versionliststr = [x.strip('()') for x in versionlist]
+		versions[name] = versionliststr
+	return versions
+	
+	"""
+	#Is a Java program[ 0 update 0 --> 0u0]
+	if up.search(string) and java.search(string):
+		string = m.sub('u', string);
+		vendor = 'oracle'
+	"""
 	
 	
-def get_version(application_list):
-	pass
 	"""
 	#json_input = json.load(open('json_MList.txt'))
 	#vendorlist = json_input['vendors']

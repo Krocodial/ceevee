@@ -1,7 +1,4 @@
-import urllib.request
-import requests
-import json
-import re, os
+import re, os, csv, json, requests, urllib.request
 from application import application
 
 spaces = re.compile(' ')
@@ -12,8 +9,38 @@ bracs = re.compile('[(].[)]', re.DOTALL)
 
 def parse_csv(name):
 	try:
-		input = csv.reader(open('../' + name))
-	except:
+		input = csv.reader(open(name, newline=''))
+		list = []
+		names = []
+		for line in input:
+			break
+		counter = 0
+		for line in input:
+			if counter % 1000 == 0:
+				print(counter)
+			counter = counter + 1
+			if len(line) < 3:
+				break
+			server = line[0]
+			name = line[1]
+			version = line[2]
+			flag = 1
+			for obj in list:
+				if obj.getName() == name and version not in obj.getVersions():
+					obj.addServer(server)
+					flag = 0
+					break
+			if flag:
+				tmp = application(name, version, server)
+				names.append(name)
+				list.append(tmp)
+		output = open('../files/shortlist.txt', 'w')
+		json.dump(names, output)
+		output.close()
+		return list
+		
+	except Exception as e:
+		print(e)
 		print('Error \nPlease ensure you are entering the name of a csv file, and that the file is in the ~/files directory')
 		exit()
 
@@ -89,12 +116,13 @@ def preparse(string):
 		
 def find_vendors(application_list):
 	vendors = json.load(open('../files/vendors.txt'))
-	sw_input = open('../files/shortlist.txt')
+	sw_input = json.load(open('../files/shortlist.txt'))
 
 	vendorlist = []
 	sw_products = []
 	
 	for line in sw_input:
+		print(software)
 		software = line[:-1]
 		if addriver.match(software):
 			continue

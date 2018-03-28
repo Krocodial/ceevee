@@ -5,8 +5,10 @@ from crawler import *
 
 application_list = {}
 
+
 print('Starting')
-#parse_csv(input('Please enter the file name: '))
+print('Processing the supplied csv file, depending on the size this can take a while..')
+app_list = parse_csv('../files/software_master.csv')
 
 print('Updating vendorlist')
 pull_vendors()

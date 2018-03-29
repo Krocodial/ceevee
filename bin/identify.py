@@ -82,6 +82,7 @@ def optimize(string):
 def determine_product(application_list):
 	output = open('../loot.txt', 'w')
 	junk = open('../no_id.txt', 'w')
+	jsonloot = open('../jsonloot.txt', 'w')
 	association = {}
 	output.write('IDENTIFIED APPLICATIONS\n')
 	output.write('++++++++++++++++++++++\n')
@@ -97,8 +98,13 @@ def determine_product(application_list):
 			junk.write(app + '\n')
 			continue
 		association[app] = name
+		for vendor in application_list[app]:
+			if name in json.load(open('../files/' + vendor + '_productlist.txt')):
+				association[app] = [vendor]
+				break
 		output.write(app + '\tApplication Identified as:\t' + name + '\n')
 		output.write('--------------------\n')
+		json.dump(association, jsonloot)
 	output.close()
 	junk.close()
 	return association

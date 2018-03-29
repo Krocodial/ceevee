@@ -19,8 +19,8 @@ class application:
 	
 	def getVersions(self):
 		return self.versions	
-	def addVersion(self, version):
-		self.versions.append(version)
+	def addVersions(self, version):
+		self.versions = self.versions + version
 	
 	def getServers(self):
 		return self.servers		

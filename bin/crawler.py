@@ -5,6 +5,10 @@ headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/5
 
 def check_vulnerabilities(app_list):
 	output = open('../loot.txt', 'w')
+	html = '''
+	<!doctype html><html><head><title>Results</title></head><body><table><thead><tr><th>Servers</th><th>name</th><th>actual name</th><th>cve</th><th>cvss</th><th>versions affected</th><th>our 
+	versions</th></tr></thead><tbody>
+	'''
 	for app in app_list:
 		if app.getProductName() == '':
 			continue
@@ -17,36 +21,20 @@ def check_vulnerabilities(app_list):
 				configs = vuln['vulnerable_configuration_cpe_2_2']
 				for config in configs:
 					list = config.split(':')
-					if len(list) >= 6:
-						if list[4] in versions and list[5] in versions and list[2] == vendor and list[3] == name:
-							output.write('\n++++++++++\n')
-							for each in app.getServers():
-								output.write(each + ' ')
-							output.write('\n' + app.getName() + '\n')
-							output.write(app.getProductName() + '\n')
-							output.write(vuln['id'] + '\n')
-							output.write(list[4] + ', and ' + list[5] + '\n')
-							for i in app.getVersions():
-								output.write(i + ' ')
-					elif len(list) == 5 and list[2] == vendor and list[3] == name:
-						if list[4] in versions:
-							output.write('\n++++++++++\n')
-							for each in app.getServers():
-								output.write(each + ' ')
-							output.write('\n' + app.getName() + '\n')
-							output.write(app.getProductName() + '\n')
-							output.write(vuln['id'] + '\n')
-							output.write(list[4] + '\n')
-							for i in app.getVersions():
-								output.write(i + ' ')
-					elif list[2] == vendor and list[3] == name:
-						output.write('\n++++++++++\n')
+					vulnvers = list[4:]
+					if vulnvers in versions and list[2] == vendor and list[3] == name:# and list[1] == '/a': uncomment this if you only care about applications
+						output.write('++++++++++\n')
 						for each in app.getServers():
 							output.write(each + ' ')
 						output.write('\n' + app.getName() + '\n')
 						output.write(app.getProductName() + '\n')
-						output.write(vuln['id'] + '\n')
-					#parse and look for versions numbers
+						output.write(vuln['id'] + '\n' + vuln['cvss'] + '\n')
+						for ver in vulnvers:
+							output.write(ver + ' ')
+						output.write('\n')
+						for i in app.getVersions():
+							output.write(i + ' ')
+						output.write('\n')
 					else:
 						pass
 		except Exception as e:

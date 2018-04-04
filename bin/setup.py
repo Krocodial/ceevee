@@ -37,7 +37,7 @@ def parse_csv(name):
 					obj.addServer(server)
 					flag = 0
 					break
-			if flag:
+			if flag == 1:
 				tmp = application(name, version, server)
 				if name not in names:
 					names.append(name)
@@ -54,15 +54,25 @@ def parse_csv(name):
 
 def update(app_list, application_list, associations, versions):
 	real_names = {}
+	new_list = []
 	for app in app_list:
 		name = app.getName()
-		vendor = application_list[name]
-		r_name = associations[name]
-		app.setVendor(vendor)
-		app.setProductName(r_name)
-		app.addVersions(versions[name])
-		if r_name not in real_names:
-			real_names[r_name] = vendor
+		try:
+			real = associations[name]
+			vendor = application_list[name]
+			if vendor == '' or real == '':
+				pass
+			else:
+				app.setVendor(vendor)
+				app.setProductName(real)
+				app.addVersions(versions[name])
+				new_list.append(app)
+				real_names[real] = vendor
+		except Exception as e:
+			#We couldn't identify this application, removing...
+			pass
+			
+	app_list = new_list
 	return real_names
 		
 """
@@ -151,12 +161,13 @@ def find_vendors(application_list):
 		q = re.compile(r'(\b|^)' + vendor + r'\b', re.IGNORECASE)	
 		for product in sw_products:
 			if q.search(product):
+				
 				if product not in application_list:
 					application_list[product] = [vendor]
 				else:
 					if vendor not in application_list[product]:
 						application_list[product].append(vendor)
-					
+				
 				if vendor not in vendorlist:
 					vendorlist.append(vendor)
 					
@@ -168,9 +179,10 @@ def find_vendors(application_list):
 	
 	
 def clean():
+	pattern_cves = re.compile('.cve.txt')
 	pattern = re.compile('.productlist.txt')
 	for f in os.listdir('../files/'):
-		if re.search(pattern, f):
+		if re.search(pattern, f) or re.search(pattern_cves, f):
 			os.remove(os.path.join('../files/', f))
 	
 	

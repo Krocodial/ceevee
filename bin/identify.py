@@ -35,7 +35,7 @@ def closest(products, name, app_list):
 				
 	
 	#Finished comparisons, return result if we are satisfied
-	if highest < .8:
+	if highest < 1:
 		return ''
 	return value
 	
@@ -80,12 +80,12 @@ def optimize(string):
 	
 
 def determine_product(application_list):
-	output = open('../loot.txt', 'w')
+	#output = open('../loot.txt', 'w')
 	junk = open('../no_id.txt', 'w')
 	jsonloot = open('../jsonloot.txt', 'w')
 	association = {}
-	output.write('IDENTIFIED APPLICATIONS\n')
-	output.write('++++++++++++++++++++++\n')
+	#output.write('IDENTIFIED APPLICATIONS\n')
+	#output.write('++++++++++++++++++++++\n')
 	for app in application_list:
 		products = []
 		for vendor in application_list[app]:
@@ -96,16 +96,18 @@ def determine_product(application_list):
 		name = closest(products, appready, application_list[app])
 		if name == '':
 			junk.write(app + '\n')
+			application_list[app] = ''
 			continue
 		association[app] = name
 		for vendor in application_list[app]:
 			if name in json.load(open('../files/' + vendor + '_productlist.txt')):
-				association[app] = [vendor]
+				application_list[app] = vendor
 				break
-		output.write(app + '\tApplication Identified as:\t' + name + '\n')
-		output.write('--------------------\n')
+		
+		#output.write(app + '\tApplication Identified as:\t' + name + '\n')
+		#output.write('--------------------\n')
 		json.dump(association, jsonloot)
-	output.close()
+	#output.close()
 	junk.close()
 	return association
 	

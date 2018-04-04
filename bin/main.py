@@ -8,7 +8,7 @@ application_list = {}
 
 print('Starting')
 print('Processing the supplied csv file, depending on the size this can take a while..')
-app_list = parse_csv('../files/software_master.csv')
+app_list = parse_csv('../files/software_short.csv')#'../files/software_master.csv')
 
 print('\nUpdating vendorlist')
 pull_vendors()
@@ -34,7 +34,7 @@ obj.update ^^^^
 print('Updating objects')
 real_names = update(app_list, application_list, associations, versions)
 
-print('Pulling cves')
+print('Pulling cves. This can also take some time...')
 pull_cves(real_names)
 
 print('Crawling for vulnerabilities')
@@ -46,4 +46,5 @@ clean()
 print('-------finished-------')
 print('View Identified vulnerabilities in ~/loot.txt')
 print("You may also want to check ~/no_id.txt where I've put programs I couldn't identify")
+print('Errors such as missing API entries are logged in ~/errors.txt')
 print('Come back anytime!')

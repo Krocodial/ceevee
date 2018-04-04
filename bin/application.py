@@ -2,7 +2,8 @@ class application:
 	def __init__(self, name, version, server):
 		self.name = name
 		self.productname = ''
-		self.versions = self.servers = []
+		self.servers = []
+		self.versions = []
 		self.versions.append(version)
 		self.servers.append(server)
 		self.cves = []

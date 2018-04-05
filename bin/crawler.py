@@ -4,11 +4,8 @@ import urllib.request
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}	
 
 def check_vulnerabilities(app_list):
-	output = open('../loot.txt', 'w')
-	html = '''
-	<!doctype html><html><head><title>Results</title></head><body><table><thead><tr><th>Servers</th><th>name</th><th>actual name</th><th>cve</th><th>cvss</th><th>versions affected</th><th>our 
-	versions</th></tr></thead><tbody>
-	'''
+	output = open('../loot.html', 'w')
+	html = '<!doctype html><html><head><title>Results</title><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></head><body><h4 class="text-center">Summary of Findings</h4><h3 class="text-center">Brought to you by CeeVee</h3><table class="table"><thead class="inverse"><tr><th>Servers</th><th>name</th><th>actual name</th><th>cve</th><th>cvss</th><th>versions affected</th><th>our  versions</th></tr></thead><tbody>'
 	for app in app_list:
 		if app.getProductName() == '':
 			continue
@@ -17,28 +14,53 @@ def check_vulnerabilities(app_list):
 			versions = app.getVersions()
 			name = app.getProductName()
 			vendor = app.getVendor()
+			tmp = '<tr><td>' + vendor + '</td><td>' + name + '</td><td>'
+			for each in app.getServers():
+				tmp = tmp + each + ' '
+			tmp = tmp + '</td></tr>'
+				
 			for vuln in vulns:
 				configs = vuln['vulnerable_configuration_cpe_2_2']
 				for config in configs:
 					list = config.split(':')
 					vulnvers = list[4:]
-					if vulnvers in versions and list[2] == vendor and list[3] == name:# and list[1] == '/a': uncomment this if you only care about applications
-						output.write('++++++++++\n')
-						for each in app.getServers():
-							output.write(each + ' ')
-						output.write('\n' + app.getName() + '\n')
-						output.write(app.getProductName() + '\n')
-						output.write(vuln['id'] + '\n' + vuln['cvss'] + '\n')
-						for ver in vulnvers:
-							output.write(ver + ' ')
-						output.write('\n')
-						for i in app.getVersions():
-							output.write(i + ' ')
-						output.write('\n')
+					if set(vulnvers).issubset(versions) and list[2] == vendor and list[3] == name:# and list[1] == '/a': uncomment this if you only care about applications
+						#print('vulnerable')
+						#output.write('++++++++++\n')
+						html = html + tmp + '<tr><td>'
+						tmp = ''
+						#for each in app.getServers():
+						#	html = html + each + ' '
+							#output.write(each + ' ')
+						cvs = vuln['cvss']
+						if float(cvs) > 7.5:
+							style = 'red'
+						elif float(cvs) > 5:
+							style = 'orange'
+						elif float(cvs) > 2.5:
+							style = 'yellow'
+						else:
+							style = 'green'
+						html = html + str(vuln['id']) + '</td><td style="color:' + style + '";>' + str(vuln['cvss']) + '</td><td>' + str(vuln['summary']) + '</td></tr>'
+						#output.write('\n' + app.getName() + '\n')
+						#output.write(app.getProductName() + '\n')
+						#output.write(vuln['id'] + '\n' + vuln['cvss'] + '\n')
+						#for ver in vulnvers:
+						#	html = html + str(ver) + ' '
+							#output.write(ver + ' ')
+						#html = html + '</td><td>'
+						#output.write('\n')
+						#for i in app.getVersions():
+						#	html = html + str(i) + ' '
+							#output.write(i + ' ')
+						#output.write('\n')
+						#html = html + '</td></tr>'
 					else:
 						pass
 		except Exception as e:
 			print(e)
+	html = html + '</tbody></table></body></html>'
+	output.write(html)
 	output.close()
 			
 def pull_cve(name, vendor):

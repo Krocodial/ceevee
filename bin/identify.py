@@ -4,7 +4,8 @@ import urllib.request
 #REGEX
 spaces = re.compile(' ')
 plus = re.compile('\+')
-version = re.compile(r'\s[\S]*[\d]+.', re.DOTALL) #Quick and dirty
+rversion = re.compile(r'\s[\S]*[\d]+.', re.DOTALL) #Quick and dirty
+version = re.compile(r'\s[\S]*[\d][\S]*')
 vversion = re.compile('\S*\d\S*' + '|' + '\(.\)' + '|' + '\S*\d\S*', re.DOTALL); #Internal version numbers
 up = re.compile('.*'+'\s'+'update'+'\s'+'.*', re.IGNORECASE); #Is an update
 java = re.compile('.*java.*', re.IGNORECASE); #Java program?
@@ -35,12 +36,18 @@ def closest(products, name, app_list):
 				
 	
 	#Finished comparisons, return result if we are satisfied
-	if highest < 1:
+	if highest < .8:
 		return ''
 	return value
 	
-def clean_string(string):
-
+#A rougher way to clean the string, just strip anything that might not be a product name. 
+def cleann_string(string):
+	#VERSION NUMBERS
+	match = rversion.search(string)
+	if match:
+		string = string[:match.start()]
+	return string
+	'''
 	#JAVA
 	jre = ['java', 'runtime', 'environment']
 	jdk = ['java', 'development', 'kit']
@@ -55,18 +62,38 @@ def clean_string(string):
 	#MICROSOFT
 	if '.NET' in words and 'Update' not in words:
 		string = 'microsoft .net framework'
+	'''
 	
+#Clean the string precisely, remove version numbers, architecture information, etc...
+def clean_string(string):
+	'''
+	#JAVA
+	jre = ['java', 'runtime', 'environment']
+	jdk = ['java', 'development', 'kit']
+	words = string.split()
+	if jre in words:
+		string = 'oracle jre'
+		print('jre')
+	if jdk in words:
+		string = 'oracle jdk'
+		print('jdk')
+
+	#MICROSOFT
+	if '.NET' in words and 'Update' not in words:
+		string = 'microsoft .net framework'
+	'''
 	#VERSION NUMBERS
 	match = version.search(string)
 	if match:
-		string = string[:match.start()]
+		string = string[:match.start()] + string[match.end():]
+		#string[:match.start()]
 	"""
 	#BRACKETS
 	string = bracs.sub('', string)
 	"""
-	if len(words) > 1:
+	#if len(words) > 1:
 		#remove the vendor name?
-		pass
+	#	pass
 	
 	return string
 	
@@ -95,9 +122,14 @@ def determine_product(application_list):
 		appready = optimize(appready)
 		name = closest(products, appready, application_list[app])
 		if name == '':
-			junk.write(app + '\n')
-			application_list[app] = ''
-			continue
+			appready = cleann_string(app)
+			appready = optimize(appready)
+			name = closest(products, appready, application_list[app])
+			if name == '':
+				junk.write(app + '\n')
+				application_list[app] = ''
+				continue
+		
 		association[app] = name
 		for vendor in application_list[app]:
 			if name in json.load(open('../files/' + vendor + '_productlist.txt')):

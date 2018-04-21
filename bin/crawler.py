@@ -3,27 +3,41 @@ import urllib.request
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}	
 
+'''
+<name>-<version>-<release>.src.rpm for source packages, or
+<name>-<version>-<release>.<architecture>.rpm for binaries.
+'''
+#Returns true if this is a valid vulnerability, otherwise false. handles one uri at a time
+def handle_oval(url):
+	#if deprecated return False
+	pass
+
 def check_vulnerabilities(app_list):
 	output = open('../loot.html', 'w')
-	html = '<!doctype html><html><head><title>Results</title><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></head><body><h4 class="text-center">Summary of Findings</h4><h3 class="text-center">Brought to you by CeeVee</h3><table class="table"><thead class="inverse"><tr><th>Servers</th><th>name</th><th>actual name</th><th>cve</th><th>cvss</th><th>versions affected</th><th>our  versions</th></tr></thead><tbody>'
+	html = '<!doctype html><html><head><title>Results</title><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"></head><body><h3 class="text-center">Summary of Findings</h3><h4 class="text-center">Brought to you by CeeVee</h4><table class="table"><thead class="inverse"><tr><th>Vendor</th><th>Product</th><th>Servers</th><th>Versions</th></tr></thead><tbody>'
 	for app in app_list:
 		if app.getProductName() == '':
 			continue
 		try:
 			vulns = json.load(open('../files/' + app.getProductName() + '_cve.txt'))
 			versions = app.getVersions()
-			name = app.getProductName()
+			name = app.getName()
 			vendor = app.getVendor()
 			tmp = '<tr><td>' + vendor + '</td><td>' + name + '</td><td>'
 			for each in app.getServers():
 				tmp = tmp + each + ' '
+			tmp = tmp + '</td><td>'
+			for ver in app.getVersions():
+				tmp = tmp + ver + ' '
 			tmp = tmp + '</td></tr>'
-				
 			for vuln in vulns:
 				configs = vuln['vulnerable_configuration_cpe_2_2']
 				for config in configs:
 					list = config.split(':')
 					vulnvers = list[4:]
+					#print(vulnvers)
+					#if len(vulnvers) == 0:
+					#	pass
 					if set(vulnvers).issubset(versions) and list[2] == vendor and list[3] == name:# and list[1] == '/a': uncomment this if you only care about applications
 						#print('vulnerable')
 						#output.write('++++++++++\n')
@@ -41,7 +55,10 @@ def check_vulnerabilities(app_list):
 							style = 'yellow'
 						else:
 							style = 'green'
-						html = html + str(vuln['id']) + '</td><td style="color:' + style + '";>' + str(vuln['cvss']) + '</td><td>' + str(vuln['summary']) + '</td></tr>'
+						html = html + str(vuln['id']) + '</td><td style="color:' + style + '";>' + str(vuln['cvss']) + '</td><td>' + str(vuln['summary']) + '</td><td>'
+						for vul in vulnvers:
+							html = html + vul + ' '
+						html = html + '</td></tr>'
 						#output.write('\n' + app.getName() + '\n')
 						#output.write(app.getProductName() + '\n')
 						#output.write(vuln['id'] + '\n' + vuln['cvss'] + '\n')

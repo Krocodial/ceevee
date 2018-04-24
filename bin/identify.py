@@ -70,7 +70,8 @@ def clean_string(string):
 	#JAVA
 	jre = ['java', 'runtime', 'environment']
 	jdk = ['java', 'development', 'kit']
-	words = string.split()
+	lower = string.lower()
+	words = lower.split()
 	if jre in words:
 		string = 'oracle jre'
 		print('jre')

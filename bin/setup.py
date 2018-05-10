@@ -1,4 +1,4 @@
-import re, os, csv, json, requests, urllib.request
+import re, os, csv, json, requests, urllib.request, datetime
 from application import application
 
 spaces = re.compile(' ')
@@ -48,6 +48,9 @@ def parse_csv(name):
 		return list
 		
 	except Exception as e:
+		output = open('../errors.txt', 'a')
+		output.write('[' + str(datetime.datetime.now()) + '] ' + e)
+		output.close()
 		print(e)
 		print('Error \nPlease ensure you are entering the name of a csv file, and that the file is in the ~/files directory')
 		exit()

@@ -8,7 +8,7 @@ application_list = {}
 
 print('Starting')
 print('Processing the supplied csv file, depending on the size this can take a while..')
-app_list = parse_csv('../files/software_short.csv')#'../files/software_master.csv')
+app_list = parse_csv('../files/software_master.csv')#'../files/software_master.csv')
 
 print('\nUpdating vendorlist')
 pull_vendors()
@@ -34,6 +34,18 @@ obj.update ^^^^
 print('Updating objects')
 real_names = update(app_list, application_list, associations, versions)
 
+#Debugging
+output = open('../info.txt', 'w')
+for app in app_list:
+	if app.getProductName() != '':
+		output.write(app.getName())
+		output.write('\t ------>  ')
+		output.write(app.getProductName())
+		output.write('\n')
+		output.write(', '.join(app.getVersions()))
+		output.write('\n------------------------\n')
+output.close()
+
 print('Pulling cves. This can also take some time...')
 pull_cves(real_names)
 
@@ -44,6 +56,10 @@ print('cleaning up')
 clean()
 
 print('-------finished-------')
+print('Critical:\t' + str(vulnerabilities['crit']))
+print('High:\t\t' + str(vulnerabilities['high']))
+print('Medium:\t\t' + str(vulnerabilities['med']))
+print('Low:\t\t' + str(vulnerabilities['low']))
 print('View Identified vulnerabilities in ~/loot.txt')
 print("You may also want to check ~/no_id.txt where I've put programs I couldn't identify")
 print('Errors such as missing API entries are logged in ~/errors.txt')

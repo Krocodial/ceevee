@@ -66,23 +66,22 @@ def cleann_string(string):
 	
 #Clean the string precisely, remove version numbers, architecture information, etc...
 def clean_string(string):
-	'''
+	working = string.lower()
+	words = working.split()
+	
+	
 	#JAVA
 	jre = ['java', 'runtime', 'environment']
 	jdk = ['java', 'development', 'kit']
-	lower = string.lower()
-	words = lower.split()
-	if jre in words:
+	if set(jre).issubset(words):
 		string = 'oracle jre'
-		print('jre')
-	if jdk in words:
+	if set(jdk).issubset(words):
 		string = 'oracle jdk'
-		print('jdk')
 
 	#MICROSOFT
 	if '.NET' in words and 'Update' not in words:
 		string = 'microsoft .net framework'
-	'''
+	
 	#VERSION NUMBERS
 	match = version.search(string)
 	if match:
@@ -108,12 +107,10 @@ def optimize(string):
 	
 
 def determine_product(application_list):
-	#output = open('../loot.txt', 'w')
+	output = open('../id.txt', 'w')
 	junk = open('../no_id.txt', 'w')
-	jsonloot = open('../jsonloot.txt', 'w')
+	#jsonloot = open('../jsonloot.txt', 'w')
 	association = {}
-	#output.write('IDENTIFIED APPLICATIONS\n')
-	#output.write('++++++++++++++++++++++\n')
 	for app in application_list:
 		products = []
 		for vendor in application_list[app]:
@@ -137,10 +134,10 @@ def determine_product(application_list):
 				application_list[app] = vendor
 				break
 		
-		#output.write(app + '\tApplication Identified as:\t' + name + '\n')
-		#output.write('--------------------\n')
-		json.dump(association, jsonloot)
-	#output.close()
+		output.write(app + '\tApplication Identified as:\t' + name + '\n')
+		output.write('--------------------\n')
+		#json.dump(association, jsonloot)
+	output.close()
 	junk.close()
 	return association
 	
@@ -153,52 +150,3 @@ def determine_versions(associations):
 		versions[name] = versionliststr
 	return versions
 	
-	"""
-	#Is a Java program[ 0 update 0 --> 0u0]
-	if up.search(string) and java.search(string):
-		string = m.sub('u', string);
-		vendor = 'oracle'
-	"""
-	
-	
-	"""
-	#json_input = json.load(open('json_MList.txt'))
-	#vendorlist = json_input['vendors']
-	output = open('tmp.txt', 'w')
-	#check if vendor is in sw?
-	for line in sw_input:
-		vendor_match = []
-		software = line[:-1]
-		if addriver.match(software):
-			continue
-		software = preparse(software)
-		for vendor in vendorlist:
-			q = re.compile(r'(\b|^)'+vendor+r'\b', re.IGNORECASE)
-			if q.search(software):
-				vendor_match.append(vendor)
-		if len(vendor_match) > 0:
-			optimized = optimize(software)
-			products = []
-			
-			TODO
-			remove vendor name before comparing ratio
-			disregard low ratio results
-			convert '#' to %23
-			
-			for each in vendor_match:
-				url = 'http://cve.circl.lu/api/browse/' + each
-				result = requests.get(url, headers=headers)
-				if result.status_code != 200:
-					print('request failed' + url)
-				else:
-					tmp = json.loads(result.content.decode('utf-8'))
-					products = products + tmp['product']
-			sw_list.append(application(software, closest(products, optimized)))
-			
-	output = open('best_guess.txt', 'w')
-
-	print('writing')
-	for sw in sw_list:
-		output.write(sw.get_vendor() + sw.get_name() + '\n')
-	output.close()
-	"""

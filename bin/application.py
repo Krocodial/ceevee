@@ -1,3 +1,11 @@
+class vuln:
+	def __init__(self, cve, url, summary, cvss):
+		self.cve = cve
+		self.url = url
+		self.summary = summary
+		self.cvss = cvss
+
+
 class application:
 	def __init__(self, name, version, server):
 		self.name = name
@@ -9,6 +17,7 @@ class application:
 		self.cves = []
 		self.cvss = 0
 		self.vendor = ''
+		self.vulnerabilities = []
 			
 	def getName(self):
 		return self.name
@@ -42,3 +51,10 @@ class application:
 		return self.vendor	
 	def setVendor(self, vendor):
 		self.vendor = vendor
+		
+	def addVuln(self, cve, url, summary, cvss):
+		self.cvss = self.cvss + cvss
+		self.vulnerabilities = self.vulnerabilities.append(vuln(cve, url, summary, cvss))
+	def getVulns(self):
+		return self.vulnerabilities
+		

@@ -1,13 +1,13 @@
-#Ceevee
+# Ceevee
   
 A command line tool that analyzes installed software and spits out a vulnerability assessment.  
 Input is a csv file properly formatted using an additional tool.  
 
-##Project Status
+## Project Status
   
 Alpha  
 
-##Requirements  
+## Requirements  
 
 *requests  
 *difflib  

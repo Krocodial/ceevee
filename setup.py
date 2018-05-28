@@ -1,20 +1,21 @@
-from cx_Freeze import setup, Executable
+import setuptools
 
-base = None    
+with open("README.md", "r") as fh:
+	long_description = fh.read()
 
-executables = [Executable("main.py", base=base)]
-
-packages = ["idna", "os", "sys", "identify", "crawler", "analysis", "requests", "datetime", "urllib.request", "json", "re", "csv", "application", "difflib" ]
-options = {
-    'build_exe': {    
-        'packages':packages,
-    },    
-}
-
-setup(
-    name = "CeeVee",
-    options = options,
-    version = "1.0",
-    description = "For when you're feeling vulnerable",
-    executables = executables
+setuptools.setup(
+	name="ceevee",
+	version="1.0.0",
+	author="Louis Kraak",
+	author_email="xxkraaklxx@gmail.com",
+	description="For when you're feeling vulnerable",
+	long_description=long_description,
+	long_description_content_type="text/markdown",
+	url="https://github.com/Krocodial/ceevee",
+	packages=setuptools.find_packages(),
+	classifiers=(
+		"Programming Language :: Python :: 3.5",
+		"License :: OSI approved :: BCgov License",
+		"Operating System :: OS Independent",
+	),
 )

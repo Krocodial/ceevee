@@ -4,6 +4,13 @@ import crawler
 import datetime
 import sys
 
+print('''
+    ceevee  Copyright (C) 2018  Province of British Columbia
+    This program comes with ABSOLUTELY NO WARRANTY.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions. More details are available in the included LICENSE
+''')
+
 
 file = '../files/software.csv'
 ratio = .8
